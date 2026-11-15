@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desafio Católico Diário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: uma coluna estreita, cartão único tipo vitral azul-mariano com filete dourado; ações empilhadas no celular. */
+:root{
+  --bg:#e9eef9;
+  --bg-2:#d6e0f5;
+  --surface:#ffffff;
+  --ink:#16203a;
+  --muted:#56617f;
+  --primary:#1f3a8a;
+  --gold:#a97a1f;
+  --line:#c9d3ea;
+  --btn-bg:#1f3a8a;
+  --btn-ink:#ffffff;
+  --ok:#1d7a4f;
+  --font-display:"Cinzel","Trajan Pro",Georgia,serif;
+  --font-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1226;--bg-2:#131c3a;--surface:#161f3e;--ink:#eef1fa;--muted:#a6b0cc;
+    --primary:#a9bcff;--gold:#e0b961;--line:#2b3763;--btn-bg:#e0b961;--btn-ink:#141a30;--ok:#6fd3a0;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1226;--bg-2:#131c3a;--surface:#161f3e;--ink:#eef1fa;--muted:#a6b0cc;
+  --primary:#a9bcff;--gold:#e0b961;--line:#2b3763;--btn-bg:#e0b961;--btn-ink:#141a30;--ok:#6fd3a0;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(120% 60% at 50% 0%,var(--bg-2),var(--bg) 70%);
+  background-repeat:no-repeat;
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:17px;line-height:1.5;
+  min-height:100%;
+}
+main{
+  max-width:520px;margin:0 auto;
+  padding:28px 18px 40px;
+  display:flex;flex-direction:column;gap:22px;
+}
+header{display:flex;align-items:center;gap:14px}
+.cross{flex:none;width:44px;height:44px;color:var(--gold)}
+h1{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(1.35rem,6vw,1.8rem);line-height:1.15;
+  margin:0;color:var(--primary);text-wrap:balance;letter-spacing:.02em;
+}
+.date{margin:2px 0 0;color:var(--muted);font-size:.95rem}
+.date::first-letter{text-transform:uppercase}
+
+.card{
+  position:relative;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-top:4px solid var(--gold);
+  border-radius:18px;
+  padding:26px 22px 24px;
+  box-shadow:0 14px 34px -18px rgba(20,32,80,.45);
+  min-height:230px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.label{
+  font-family:var(--font-display);font-weight:500;
+  font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);
+  margin:0;
+}
+.chip{
+  align-self:flex-start;
+  font-size:.8rem;font-weight:700;letter-spacing:.04em;
+  color:var(--primary);border:1px solid var(--primary);
+  padding:3px 11px;border-radius:999px;
+}
+.challenge{
+  margin:0;font-size:clamp(1.3rem,5.6vw,1.6rem);line-height:1.3;font-weight:600;
+  text-wrap:balance;
+}
+.hint{margin:0;color:var(--muted)}
+.sealed .challenge{color:var(--muted);font-weight:400;font-size:1.1rem}
+.reveal{animation:rise .5s ease both}
+@keyframes rise{from{opacity:.0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.reveal{animation:none}}
+
+.actions{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>button{flex:1 1 150px}
+button{
+  font:inherit;font-weight:700;cursor:pointer;
+  border-radius:14px;padding:15px 18px;min-height:52px;
+  border:1px solid transparent;
+  transition:transform .08s ease,filter .15s ease;
+}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.btn-main{background:var(--btn-bg);color:var(--btn-ink);font-size:1.1rem;box-shadow:0 10px 22px -12px rgba(20,32,80,.7)}
+.btn-main:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;color:var(--primary);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--primary)}
+.btn-done{background:transparent;color:var(--ok);border-color:var(--ok)}
+.congrats{
+  display:flex;flex-direction:column;gap:10px;
+  border:1px solid var(--ok);border-radius:16px;padding:18px;
+  background:color-mix(in srgb,var(--ok) 10%,var(--surface));
+  animation:rise .5s ease both;
+}
+@media (prefers-reduced-motion:reduce){.congrats{animation:none}}
+.congrats-title{margin:0;font-family:var(--font-display);font-weight:700;font-size:1.35rem;color:var(--ok);letter-spacing:.03em}
+.congrats-msg{margin:0 0 4px}
+[hidden]{display:none!important}
+
+.status{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  color:var(--muted);font-size:.95rem;
+  border-top:1px solid var(--line);padding-top:14px;
+}
+.status strong{color:var(--ink);font-variant-numeric:tabular-nums}
+.toast{min-height:1.4em;margin:0;color:var(--ok);font-weight:600;font-size:.95rem}
+footer{color:var(--muted);font-size:.9rem;text-align:center}
+footer em{font-family:var(--font-display);font-style:normal;letter-spacing:.08em;color:var(--gold)}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg class="cross" viewBox="0 0 44 44" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <circle cx="22" cy="22" r="20" stroke-width="1.2" opacity=".55"/>
+      <path d="M22 8v28M13 17h18"/>
+    </svg>
+    <div>
+      <h1>Desafio Católico Diário</h1>
+      <p class="date" id="date"></p>
+    </div>
+  </header>
+
+  <section class="card sealed" id="card" aria-live="polite">
+    <p class="label" id="label">Desafio de hoje</p>
+    <span class="chip" id="chip" hidden></span>
+    <p class="challenge" id="challenge">Um pequeno passo de santidade para o seu dia. Toque no botão para descobrir qual é.</p>
+    <p class="hint" id="hint" hidden></p>
+  </section>
+
+  <div class="actions">
+    <button class="btn-main" id="reveal" type="button">Revelar o desafio de hoje</button>
+    <button class="btn-done" id="done" type="button" hidden>Cumpri o desafio</button>
+    <div class="congrats" id="congrats" hidden>
+      <p class="congrats-title">Parabéns!</p>
+      <p class="congrats-msg" id="congrats-msg"></p>
+      <button class="btn-main" id="more" type="button">Quero um novo desafio</button>
+    </div>
+    <div class="row" id="extra" hidden>
+      <button class="btn-ghost" id="another" type="button">Sortear outro</button>
+      <button class="btn-ghost" id="copy" type="button">Copiar desafio</button>
+    </div>
+    <p class="toast" id="toast" role="status"></p>
+  </div>
+
+  <div class="status" id="status" hidden>
+    <span>Dias seguidos: <strong id="streak">0</strong></span>
+    <span>Desafios cumpridos: <strong id="total">0</strong></span>
+  </div>
+
+  <footer><em>Ad maiorem Dei gloriam</em><br>Tudo para a maior glória de Deus.</footer>
+</main>
+
+<script>
+const CATS={o:"Oração",p:"Palavra de Deus",c:"Caridade",s:"Sacrifício",i:"Sacramentos e Igreja",m:"Maria e os santos",f:"Família e gratidão",v:"Virtude"};
+const D=[
+["o","Reze um terço completo, meditando os mistérios do dia."],
+["c","Faça uma boa ação sem contar para ninguém."],
+["p","Leia o Evangelho do dia e guarde uma frase no coração."],
+["s","Não reclame de nada hoje."],
+["i","Visite o Santíssimo Sacramento, nem que seja por cinco minutos."],
+["m","Reze três Ave-Marias ao acordar e consagre o dia a Nossa Senhora."],
+["f","Escreva três coisas pelas quais você é grato a Deus hoje."],
+["v","Diga a verdade hoje, mesmo quando custar."],
+["o","Reze o Angelus ao meio-dia."],
+["c","Elogie sinceramente três pessoas."],
+["p","Leia as Bem-aventuranças (Mt 5,1-12) e escolha uma para viver hoje."],
+["s","Fique sem redes sociais hoje, ou limite a 15 minutos."],
+["i","Participe da Santa Missa hoje, mesmo sendo dia de semana."],
+["m","Reze a Salve Rainha com atenção."],
+["f","Diga \"eu te amo\" a alguém da sua família."],
+["v","Faça seu estudo ou trabalho com capricho e ofereça a Deus."],
+["o","Reze o Terço da Divina Misericórdia às 15h."],
+["c","Ligue para alguém que está sozinho."],
+["p","Leia a parábola do Filho Pródigo (Lc 15,11-32)."],
+["s","Abra mão de um doce ou refrigerante e ofereça por uma intenção."],
+["i","Marque sua confissão para esta semana."],
+["m","Leia sobre a vida do santo do dia."],
+["f","Faça uma refeição em família sem telas."],
+["v","Chegue pontualmente a todos os compromissos de hoje."],
+["o","Faça 10 minutos de silêncio diante de Deus, sem celular."],
+["c","Doe uma roupa em bom estado ou um alimento."],
+["p","Leia o hino da caridade (1Cor 13) bem devagar."],
+["s","Levante no primeiro toque do despertador: o minuto heroico."],
+["i","Faça uma comunhão espiritual durante o dia."],
+["m","Reze a Ladainha de Nossa Senhora."],
+["f","Reze junto com sua família ou com alguém que você ama."],
+["v","Não fale mal de ninguém hoje."],
+["o","Comece o dia com o Sinal da Cruz e ofereça tudo a Deus."],
+["c","Ajude nas tarefas de casa sem que ninguém peça."],
+["p","Faça 15 minutos de Lectio Divina com um trecho do Evangelho."],
+["s","Não use o celular durante as refeições."],
+["i","Chegue dez minutos antes na próxima Missa para se preparar."],
+["m","Peça a intercessão de São José pelo seu trabalho ou estudo."],
+["f","Ligue para seus avós ou para um parente idoso."],
+["v","Ouça mais do que fala hoje."],
+["o","Reze um Pai-Nosso bem devagar, pensando em cada palavra."],
+["c","Perdoe de coração alguém que te magoou."],
+["p","Decore um versículo da Bíblia hoje."],
+["s","Faça primeiro a tarefa que você mais vem adiando."],
+["i","Faça meia hora de adoração ao Santíssimo."],
+["m","Reze o Lembrai-vos, entregando a Maria uma preocupação."],
+["f","Agradeça pessoalmente a alguém que te ajudou."],
+["v","Aceite uma correção hoje sem se justificar."],
+["o","Faça um exame de consciência antes de dormir."],
+["c","Peça perdão a alguém que você ofendeu."],
+["p","Leia a parábola do Bom Samaritano (Lc 10,25-37) e pergunte: quem é meu próximo hoje?"],
+["s","Durma sem o celular na cama."],
+["i","Fique alguns minutos em ação de graças depois da comunhão."],
+["m","Coloque uma flor ou acenda uma vela diante de uma imagem de Maria."],
+["f","Peça a bênção aos seus pais ou reze por eles."],
+["v","Seja o primeiro a cumprimentar e sorrir hoje."],
+["o","Reze pela pessoa com quem você tem mais dificuldade."],
+["c","Ouça alguém com atenção total, sem olhar o celular."],
+["p","Leia um capítulo do Evangelho de São Marcos."],
+["s","Não coma carne hoje e ofereça essa abstinência."],
+["i","Lembre a data do seu batismo e agradeça por ele."],
+["m","Imite hoje uma virtude de Maria: o silêncio, a escuta ou o serviço."],
+["f","Escreva um bilhete carinhoso para alguém de casa."],
+["v","Evite hoje todo conteúdo que te afasta de Deus."],
+["o","Reze pelas almas do purgatório."],
+["c","Ajude alguém em situação de rua com comida ou uma conversa."],
+["p","Leia um trecho do Catecismo da Igreja Católica."],
+["s","Evite discussões inúteis: cale onde você iria retrucar."],
+["i","Reze a Via-Sacra."],
+["m","Escolha um santo padroeiro para este mês e conheça sua história."],
+["f","Agradeça a Deus por uma dificuldade que te fez crescer."],
+["v","Devolva ou conserte algo que você deve a alguém."],
+["o","Reze pelo Papa e pelos sacerdotes da sua paróquia."],
+["c","Mande uma mensagem de encorajamento a quem está passando por um momento difícil."],
+["p","Leia João 15,1-17, a videira e os ramos."],
+["s","Arrume sua cama e seu quarto como uma oferta a Deus."],
+["i","Ofereça ajuda em uma pastoral ou serviço da paróquia."],
+["m","Reze a oração de São Miguel Arcanjo."],
+["f","Contemple a natureza por alguns minutos e louve o Criador."],
+["v","Faça um favor a quem não pode retribuir."],
+["o","Reze uma dezena do terço pela paz no mundo."],
+["c","Visite ou ligue para uma pessoa doente."],
+["p","Leia Mateus 25,31-46 e pense em como servir Cristo nos pequenos."],
+["s","Fique sem séries e jogos hoje e dê esse tempo à oração ou à família."],
+["i","Faça a genuflexão com calma e atenção ao entrar na igreja."],
+["m","Faça hoje pequenas coisas com grande amor, como ensinou Santa Teresinha."],
+["f","Fale de Deus com alguém hoje, com naturalidade."],
+["v","Termine tudo o que começar hoje."],
+["o","Agradeça a Deus antes de cada refeição."],
+["c","Seja gentil com quem te atende: caixa, motorista, porteiro."],
+["p","Leia Filipenses 4,4-9 e entregue suas preocupações a Deus."],
+["s","Coma o que for servido, sem reclamar e sem escolher."],
+["i","Leia com antecedência as leituras da Missa do próximo domingo."],
+["m","Peça a São Carlo Acutis ajuda para usar bem a internet."],
+["f","Convide um amigo para ir à Missa com você."],
+["v","Troque uma crítica por um conselho dado com caridade."],
+["o","Reze ao seu Anjo da Guarda ao acordar e ao deitar."],
+["c","Defenda alguém que estiver sendo criticado pelas costas."],
+["p","Leia Romanos 12 e escolha um conselho para praticar."],
+["s","Guarde 30 minutos de silêncio, sem música e sem telas."],
+["i","Ao passar diante de uma igreja, faça o Sinal da Cruz."],
+["m","Reze o Magnificat (Lc 1,46-55) agradecendo o que Deus fez por você."],
+["f","Reze pela sua vocação e por quem Deus colocou ao seu lado."],
+["v","Tenha paciência com quem te irrita e ofereça isso a Deus."],
+["o","Reze o Credo com atenção, renovando sua fé."],
+["c","Ajude um colega no estudo ou no trabalho."],
+["p","Leia a Paixão de Cristo em um dos Evangelhos."],
+["s","Deixe o melhor pedaço ou o melhor lugar para outra pessoa."],
+["i","Use água benta ao sair de casa e peça proteção a Deus."],
+["m","Aprenda uma frase de um santo e viva-a durante o dia."],
+["f","Publique hoje algo que edifique quem te segue."],
+["v","Faça bem feito um serviço que ninguém vai ver."],
+["o","Reze por alguém doente que você conhece."],
+["c","Separe um valor para doar à paróquia ou a uma obra de caridade."],
+["p","Leia Mateus 6, sobre a oração, o jejum e a esmola."],
+["s","Faça um pequeno jejum: pule um lanche e ofereça por alguém."],
+["o","Faça cinco minutos de oração espontânea, com suas próprias palavras."],
+["c","Ofereça ajuda a um vizinho."],
+["p","Reze com o Salmo 23 (22), o Senhor é meu pastor."],
+["s","Faça o trajeto de hoje sem música, em oração."],
+["o","Reze pelas vocações sacerdotais e religiosas."],
+["c","Ceda a vez na fila ou no trânsito."],
+["p","Compartilhe um versículo com um amigo."],
+["o","Reze o Vinde, Espírito Santo antes de estudar ou trabalhar."],
+["c","Reconcilie-se com alguém de quem você se afastou."],
+["p","Escute uma homilia ou formação católica com atenção."],
+["o","Repita ao longo do dia: \"Jesus, eu confio em Vós\"."],
+["o","Reze por quem não tem ninguém que reze por ele."],
+["p","Leia um capítulo do livro dos Provérbios."],
+["o","Faça um ato de contrição sincero."],
+["o","Reze pelos governantes e por quem sofre com a guerra e a fome."],
+["p","Reze com o Salmo 51 (50), pedindo um coração puro."],
+["o","Reze pelos seus pais e avós, vivos ou falecidos."]
+];
+
+const $=id=>document.getElementById(id);
+const now=new Date();
+const key=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=key(now);
+const yest=key(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1));
+const dayNum=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/864e5);
+const step=D.length%37===0?41:37;
+const dailyIdx=(dayNum*step)%D.length;
+let current=dailyIdx;
+
+const store={
+  get(){try{return JSON.parse(localStorage.getItem("desafio-catolico"))||{}}catch(e){return {}}},
+  set(v){try{localStorage.setItem("desafio-catolico",JSON.stringify(v))}catch(e){}}
+};
+let st=store.get();
+
+$("date").textContent=now.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+
+function toast(msg){$("toast").textContent=msg}
+
+function show(idx,isDaily){
+  current=idx;
+  const [c,t]=D[idx],card=$("card");
+  card.classList.remove("sealed","reveal");
+  void card.offsetWidth;
+  card.classList.add("reveal");
+  $("label").textContent=isDaily?"Desafio de hoje":"Desafio extra";
+  $("chip").textContent=CATS[c];$("chip").hidden=false;
+  $("challenge").textContent=t;
+  $("hint").hidden=false;
+  $("hint").textContent=isDaily?"Todos recebem este mesmo desafio hoje. Amanhã tem outro.":"Um desafio a mais para quem quer ir além.";
+  $("reveal").hidden=true;
+  revealed=true;
+  $("extra").hidden=false;
+  renderDone();
+}
+
+const PRAISE=[
+  "Você cumpriu o desafio. Que Deus te abençoe e multiplique esse bem!",
+  "Desafio cumprido! Um passo a mais no caminho da santidade.",
+  "Muito bem! O céu se alegra com cada pequeno gesto de amor.",
+  "Você foi fiel no pouco. Deus te abençoe!",
+  "Desafio cumprido! Que essa graça transborde para quem está ao seu redor."
+];
+let revealed=false;
+if(st.day!==today){st.done=st.last===today?[dailyIdx]:[];st.day=today}
+
+function pickNew(){
+  const free=D.map((_,i)=>i).filter(i=>i!==current&&i!==dailyIdx&&!st.done.includes(i));
+  const pool=free.length?free:D.map((_,i)=>i).filter(i=>i!==current);
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function renderDone(){
+  const done=revealed&&st.done.includes(current);
+  $("done").hidden=!revealed||done;
+  $("congrats").hidden=!done;
+  if(done)$("congrats-msg").textContent=PRAISE[(st.total||0)%PRAISE.length];
+  if(st.total){
+    $("status").hidden=false;
+    const alive=st.last===today||st.last===yest;
+    $("streak").textContent=alive?(st.streak||0):0;
+    $("total").textContent=st.total;
+  }
+}
+
+$("reveal").onclick=()=>{st.seen=today;store.set(st);show(dailyIdx,true);toast("")};
+
+$("done").onclick=()=>{
+  if(st.done.includes(current))return;
+  if(st.last!==today){st.streak=st.last===yest?(st.streak||0)+1:1;st.last=today}
+  st.total=(st.total||0)+1;
+  st.done.push(current);
+  store.set(st);
+  toast("");
+  renderDone();
+};
+
+$("another").onclick=$("more").onclick=()=>{show(pickNew(),false);toast("")};
+
+$("copy").onclick=()=>{
+  const text="Desafio católico de hoje: "+D[current][1];
+  const ok=()=>toast("Desafio copiado. Cole e envie para alguém!");
+  const fail=()=>toast("Não foi possível copiar. Selecione o texto e copie manualmente.");
+  try{navigator.clipboard.writeText(text).then(ok,fail)}catch(e){fail()}
+};
+
+if(st.seen===today)show(dailyIdx,true);else renderDone();
+</script>
+</body>
+</html>
